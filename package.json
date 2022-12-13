@@ -9,10 +9,21 @@
     "lint": "next lint"
   },
   "dependencies": {
+    "daisyui": "^2.42.1",
     "eslint": "8.29.0",
     "eslint-config-next": "13.0.6",
+    "framer-motion": "^7.6.19",
+    "lottie-react": "^2.3.1",
     "next": "13.0.6",
     "react": "18.2.0",
-    "react-dom": "18.2.0"
+    "react-custom-roulette": "^1.2.0",
+    "react-dom": "18.2.0",
+    "react-particles": "^2.6.0"
+  },
+  "devDependencies": {
+    "autoprefixer": "^10.4.13",
+    "postcss": "^8.4.19",
+    "react-icons": "^4.7.1",
+    "tailwindcss": "^3.2.4"
   }
 }
