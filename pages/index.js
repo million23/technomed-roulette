@@ -1,13 +1,14 @@
 import Link from "next/link";
 import { motion } from "framer-motion";
 import { useEffect } from "react";
+import { useParticipants } from "../components/ParticipantsContext";
 import { useRef } from "react";
 import { useState } from "react";
 
 const HomePage = () => {
   const videoRef = useRef(null);
   const canvasRef = useRef(null);
-  const [participants, setParticipants] = useState([]);
+  const { participants, setParticipants } = useParticipants();
 
   const getVideo = async () => {
     navigator.mediaDevices
@@ -33,7 +34,7 @@ const HomePage = () => {
       let canvas = canvasRef.current;
       let ctx = canvas.getContext("2d");
       let video = videoRef.current;
-      ctx.drawImage(video, -100, -50, 300, 200);
+      ctx.drawImage(video, -70, 0, 650, 500);
 
       let image = canvas.toDataURL("image/png");
       const localParticipants = [...participants, { name, image }];
@@ -41,25 +42,13 @@ const HomePage = () => {
 
       e.target[0].value = "";
 
-      // set to local storage
-      localStorage.setItem("participants", JSON.stringify(localParticipants));
-    }
-  };
-
-  const loadParticipants = () => {
-    let localParticipants = JSON.parse(localStorage.getItem("participants"));
-    if (localParticipants) {
-      setParticipants(localParticipants);
+      sessionStorage.setItem("participants", JSON.stringify(localParticipants));
     }
   };
 
   useEffect(() => {
     getVideo();
   }, [videoRef]);
-
-  useEffect(() => {
-    loadParticipants();
-  }, []);
 
   return (
     <>
@@ -78,7 +67,8 @@ const HomePage = () => {
         </video>
         <p className="text-center max-w-lg mx-auto">
           Please place your head at the center of the frame, type your name, and
-          click submit.
+          click submit. You can remove the participant by clicking on their
+          photo below
         </p>
 
         <form onSubmit={handleSubmit} className="text-center mt-10">
@@ -94,8 +84,8 @@ const HomePage = () => {
           id="canvas"
           ref={canvasRef}
           className="hidden"
-          width={100}
-          height={100}
+          width={500}
+          height={500}
         />
 
         {participants.length > 0 && (
@@ -110,10 +100,6 @@ const HomePage = () => {
                     (p) => p.name !== participant.name
                   );
                   setParticipants(filteredParticipants);
-                  localStorage.setItem(
-                    "participants",
-                    JSON.stringify(filteredParticipants)
-                  );
                 }}
                 key={index}
                 className="flex flex-col items-center hover:opacity-50 cursor-pointer transition-all"

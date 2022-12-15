@@ -3,6 +3,8 @@ import { useEffect, useState } from "react";
 import Lottie from "lottie-react";
 import __Confetti from "../public/confetti.json";
 import __Fireworks from "../public/fireworks.json";
+import { motion } from "framer-motion";
+import { useParticipants } from "../components/ParticipantsContext";
 import { useRouter } from "next/router";
 
 const RoulettePage = () => {
@@ -10,28 +12,40 @@ const RoulettePage = () => {
   const [rouletteData, setRouletteData] = useState([]);
   const [roll, setRoll] = useState({});
   const [animatedRoll, setAnimatedRoll] = useState({});
+  const { participants } = useParticipants();
 
   const rollRoulette = () => {
+    const soundEffect = new Audio("/rouletteResult.wav");
+    soundEffect.play();
     setRoll({});
-    for (let index = 0; index < 50; index++) {
-      setTimeout(() => {
-        let randomIndex = Math.floor(Math.random() * rouletteData.length);
-        setAnimatedRoll(rouletteData[randomIndex]);
 
-        if (index === 49) {
-          setRoll(rouletteData[randomIndex]);
-          setAnimatedRoll({});
+    if (!soundEffect.paused) {
+      let index = 0;
+
+      const rolling = setInterval(() => {
+        index++;
+        if (index === rouletteData.length) {
+          index = 0;
         }
-      }, 100 * index);
+
+        let randomIndex = Math.floor(Math.random() * rouletteData.length);
+        setAnimatedRoll(rouletteData[index]);
+      }, 10);
+
+      setTimeout(() => {
+        clearInterval(rolling);
+        let randomIndex = Math.floor(Math.random() * rouletteData.length);
+        setRoll(rouletteData[randomIndex]);
+        setAnimatedRoll({});
+      }, 4450);
     }
   };
 
   const loadData = () => {
-    const data = JSON.parse(localStorage.getItem("participants"));
-    if (data) {
-      setRouletteData(data);
-    } else {
-      router.push("/");
+    let localParticipants = JSON.parse(sessionStorage.getItem("participants"));
+
+    if (localParticipants) {
+      setRouletteData(localParticipants);
     }
   };
 
@@ -48,25 +62,39 @@ const RoulettePage = () => {
       )}
 
       {animatedRoll?.name && (
-        <div className="text-center">
-          <h1 className="text-2xl font-bold">{animatedRoll.name}</h1>
+        // scale: [0.5, 1, 1, 0.9]
+        <motion.div
+          animate={{
+            opacity: [0, 1, 1, 1],
+            y: [-200, 0, 0, 0],
+            scale: [0.5, 1, 1, 0.5],
+          }}
+          transition={{ ease: [0, 1, 1, 0.5], duration: 5 }}
+          className="text-center"
+        >
+          {/* <h1 className="text-4xl font-bold mb-5">{animatedRoll.name}</h1> */}
           <img
             src={animatedRoll.image}
             alt={animatedRoll.name}
-            className="rounded-full w-32 h-32 mx-auto"
+            className="border-2 border-primary rounded-md w-[300px] h-[300px] mx-auto"
           />
-        </div>
+        </motion.div>
       )}
       {roll?.name && (
         <>
-          <div className="text-center relative flex flex-col justify-between">
-            <div className="flex flex-col items-center justify-center py-32 relative">
-              <h1 className="text-2xl font-bold">{roll.name}</h1>
+          <div className="text-center relative flex flex-col justify-center min-h-screen">
+            <motion.div
+              initial={{ opacity: 0, scale: 2 }}
+              animate={{ opacity: 1, scale: 1 }}
+              transition={{ ease: [0.11, 1.7, 0.28, 0.97], duration: 0.5 }}
+              className="flex flex-col items-center justify-center relative"
+            >
               <img
                 src={roll.image}
                 alt={roll.name}
-                className="rounded-full w-32 h-32 mx-auto"
+                className="border-2 border-primary rounded-md w-[300px] h-[300px] mx-auto"
               />
+              <h1 className="text-4xl font-bold mt-5">{roll.name}</h1>
 
               <Lottie
                 loop={false}
@@ -78,16 +106,21 @@ const RoulettePage = () => {
                 animationData={__Fireworks}
                 className="fixed top-0 left-0 w-full h-full -z-10"
               />
-            </div>
+            </motion.div>
 
-            <div className="grid grid-cols-2 gap-2 items-center w-full">
+            <motion.div
+              initial={{ opacity: 0, y: 40 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ ease: "circOut", duration: 0.5, delay: 3 }}
+              className="grid grid-cols-2 gap-2 items-center w-full mt-16"
+            >
               <button
                 onClick={() => {
                   const newRouletteData = rouletteData.filter(
                     (item) => item.name !== roll.name
                   );
                   setRouletteData(newRouletteData);
-                  localStorage.setItem(
+                  sessionStorage.setItem(
                     "participants",
                     JSON.stringify(newRouletteData)
                   );
@@ -100,7 +133,7 @@ const RoulettePage = () => {
               <button onClick={rollRoulette} className="btn btn-primary ">
                 Re-roll
               </button>
-            </div>
+            </motion.div>
           </div>
         </>
       )}
