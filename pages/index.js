@@ -100,6 +100,10 @@ const HomePage = () => {
                     (p) => p.name !== participant.name
                   );
                   setParticipants(filteredParticipants);
+                  sessionStorage.setItem(
+                    "participants",
+                    JSON.stringify(filteredParticipants)
+                  );
                 }}
                 key={index}
                 className="flex flex-col items-center hover:opacity-50 cursor-pointer transition-all"

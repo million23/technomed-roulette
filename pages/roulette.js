@@ -4,6 +4,7 @@ import Lottie from "lottie-react";
 import __Confetti from "../public/confetti.json";
 import __Fireworks from "../public/fireworks.json";
 import { motion } from "framer-motion";
+import randomNumber from "random-number-csprng";
 import { useParticipants } from "../components/ParticipantsContext";
 import { useRouter } from "next/router";
 
@@ -14,8 +15,10 @@ const RoulettePage = () => {
   const [animatedRoll, setAnimatedRoll] = useState({});
   const { participants } = useParticipants();
 
-  const rollRoulette = () => {
+  const rollRoulette = async () => {
     const soundEffect = new Audio("/rouletteResult.wav");
+    const result = await randomNumber(0, rouletteData.length - 1);
+
     soundEffect.play();
     setRoll({});
 
@@ -28,14 +31,13 @@ const RoulettePage = () => {
           index = 0;
         }
 
-        let randomIndex = Math.floor(Math.random() * rouletteData.length);
         setAnimatedRoll(rouletteData[index]);
       }, 10);
 
       setTimeout(() => {
         clearInterval(rolling);
-        let randomIndex = Math.floor(Math.random() * rouletteData.length);
-        setRoll(rouletteData[randomIndex]);
+
+        setRoll(rouletteData[result]);
         setAnimatedRoll({});
       }, 4450);
     }
