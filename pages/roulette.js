@@ -14,11 +14,13 @@ const RoulettePage = () => {
   const [roll, setRoll] = useState({});
   const [animatedRoll, setAnimatedRoll] = useState({});
   const { participants } = useParticipants();
+  const [soundEffect, setSoundEffect] = useState(null);
 
   const rollRoulette = async () => {
-    const soundEffect = new Audio("/rouletteResult.wav");
+    // const soundEffect = new Audio("/rouletteResult.wav");
     const result = await randomNumber(0, rouletteData.length - 1);
 
+    soundEffect.currentTime = 0;
     soundEffect.play();
     setRoll({});
 
@@ -44,6 +46,7 @@ const RoulettePage = () => {
   };
 
   const loadData = () => {
+    setSoundEffect(new Audio("/rouletteResult.wav"));
     let localParticipants = JSON.parse(sessionStorage.getItem("participants"));
 
     if (localParticipants) {
@@ -80,6 +83,7 @@ const RoulettePage = () => {
             alt={animatedRoll.name}
             className="border-2 border-primary rounded-md w-[300px] h-[300px] mx-auto"
           />
+          {/* <p>{animatedRoll.name}</p> */}
         </motion.div>
       )}
       {roll?.name && (
@@ -119,13 +123,9 @@ const RoulettePage = () => {
               <button
                 onClick={() => {
                   const newRouletteData = rouletteData.filter(
-                    (item) => item.name !== roll.name
+                    (item) => item.id !== roll.id
                   );
                   setRouletteData(newRouletteData);
-                  sessionStorage.setItem(
-                    "participants",
-                    JSON.stringify(newRouletteData)
-                  );
                   setRoll({});
                 }}
                 className="btn btn-primary "
